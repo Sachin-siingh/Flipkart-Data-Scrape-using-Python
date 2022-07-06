@@ -1,0 +1,50 @@
+import pandas as pd  
+import requests      
+from bs4 import BeautifulSoup 
+import numpy as np  
+
+
+url = 'https://www.flipkart.com/search?q=laptop&sid=6bo%2Cb5g&as=on&as-show=on&otracker=AS_QueryStore_OrganicAutoSuggest_1_3_na_na_na&otracker1=AS_QueryStore_OrganicAutoSuggest_1_3_na_na_na&as-pos=1&as-type=RECENT&suggestionId=laptop%7CLaptops&requestId=302b7d42-53ce-464e-8b63-5eae269a289a&as-searchtext=lap'
+
+response = requests.get(url)
+soup = BeautifulSoup(response.content, 'html.parser')
+
+name = []
+price = []
+display = []
+processor = []
+ram = []
+OS = []
+rom = []
+
+laptop_data = soup.findAll('div', attrs= {'class': '_2kHMtA'})
+
+for store in laptop_data:
+    pric= store.find('div', class_ = '_30jeq3 _1_WHN1').text.replace('\n', '')
+    price.append(pric)
+    
+    title = store.find('div', class_ = '_4rR01T').text.replace('\n', '')
+    name.append(title)
+    
+    
+    value = store.find_all('li', attrs = {'class': 'rgWa7D'})
+    
+    proce = value[0].text
+    processor.append(proce)
+    
+    mem1 = value[1].text 
+    ram.append(mem1)
+    
+    ope = value[2].text
+    OS.append(ope)
+    
+    mem2= value[3].text 
+    rom.append(mem2)
+    
+    
+
+    
+laptop_DF = pd.DataFrame({'product name': name, 'price': price, 'Processor' : processor, 'Ram': ram, 'OS':OS,'Rom':rom})
+
+
+laptop_DF.to_excel("Laptop_Data_from_Flipkart.xlsx")
